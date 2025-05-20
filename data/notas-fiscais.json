@@ -1,0 +1,86 @@
+[
+  {
+    "id": "nf1",
+    "numero": "98765",
+    "serie": "1",
+    "dataEmissao": "2023-10-15T10:30:00.000Z",
+    "dataCadastro": "2023-10-16T08:45:00.000Z",
+    "valorTotal": 5432.1,
+    "chaveAcesso": "35231012345678901234650010000987651073244198",
+    "emitente": {
+      "razaoSocial": "Fábrica de Bebidas ABC",
+      "cnpj": "12.345.678/0001-23",
+      "inscricaoEstadual": "123456789",
+      "endereco": "Av. Principal, 1000"
+    },
+    "transportadora": {
+      "razaoSocial": "Transportes Rápidos",
+      "cnpj": "45.678.901/0001-23"
+    },
+    "produtos": [
+      {
+        "codigo": "SKU001",
+        "descricao": "Refrigerante Cola 2L",
+        "unidade": "UN",
+        "quantidade": 100,
+        "valorUnitario": 5.5,
+        "valorTotal": 550,
+        "hl": 200,
+        "familia": "Refrigerantes"
+      },
+      {
+        "codigo": "SKU002",
+        "descricao": "Água Mineral 500ml",
+        "unidade": "UN",
+        "quantidade": 200,
+        "valorUnitario": 2,
+        "valorTotal": 400,
+        "hl": 100,
+        "familia": "Águas"
+      }
+    ],
+    "volumeTotal": 300
+  },
+  {
+    "id": "nf2",
+    "numero": "12345",
+    "serie": "1",
+    "dataEmissao": "2023-10-20T14:30:00.000Z",
+    "dataCadastro": "2023-10-21T09:15:00.000Z",
+    "valorTotal": 8765.43,
+    "chaveAcesso": "35231012345678901234650010001234567890123456",
+    "emitente": {
+      "razaoSocial": "Indústria de Bebidas XYZ",
+      "cnpj": "98.765.432/0001-10",
+      "inscricaoEstadual": "987654321",
+      "endereco": "Rua Secundária, 500"
+    },
+    "transportadora": {
+      "razaoSocial": "Logística Express",
+      "cnpj": "34.567.890/0001-12"
+    },
+    "produtos": [
+      {
+        "codigo": "SKU003",
+        "descricao": "Cerveja Pilsen 600ml",
+        "unidade": "UN",
+        "quantidade": 300,
+        "valorUnitario": 7.5,
+        "valorTotal": 2250,
+        "hl": 180,
+        "familia": "Cervejas"
+      },
+      {
+        "codigo": "SKU004",
+        "descricao": "Suco Natural 1L",
+        "unidade": "UN",
+        "quantidade": 150,
+        "valorUnitario": 12,
+        "valorTotal": 1800,
+        "hl": 150,
+        "familia": "Sucos"
+      }
+    ],
+    "volumeTotal": 330
+  }
+]

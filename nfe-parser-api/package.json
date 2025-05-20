@@ -1,0 +1,31 @@
+{
+  "name": "nfe-parser-api",
+  "version": "1.0.0",
+  "description": "API para processar XMLs de Notas Fiscais Eletrônicas",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"No tests configured\" && exit 0"
+  },
+  "keywords": [
+    "nfe",
+    "xml",
+    "parser",
+    "api",
+    "nota-fiscal"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "fast-xml-parser": "^4.2.7",
+    "form-data": "^4.0.2",
+    "multer": "^1.4.5-lts.1",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

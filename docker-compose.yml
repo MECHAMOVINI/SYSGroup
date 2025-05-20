@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nfsys_app
+    restart: always
+    ports:
+      - "3003:3003"
+    depends_on:
+      - postgres
+    environment:
+      - NODE_ENV=production
+      - PORT=3003
+      - DB_TYPE=postgres
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE=nfsys
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=1d
+      - CORS_ORIGIN=${CORS_ORIGIN}
+    networks:
+      - nfsys_network
+
+  postgres:
+    image: postgres:14-alpine
+    container_name: nfsys_postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=nfsys
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - nfsys_network
+
+  nginx:
+    image: nginx:alpine
+    container_name: nfsys_nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf:/etc/nginx/conf.d
+      - ./nginx/certbot/conf:/etc/letsencrypt
+      - ./nginx/certbot/www:/var/www/certbot
+      - ./dist:/usr/share/nginx/html
+    depends_on:
+      - app
+    networks:
+      - nfsys_network
+
+  certbot:
+    image: certbot/certbot
+    container_name: nfsys_certbot
+    volumes:
+      - ./nginx/certbot/conf:/etc/letsencrypt
+      - ./nginx/certbot/www:/var/www/certbot
+    depends_on:
+      - nginx
+    command: certonly --webroot --webroot-path=/var/www/certbot --email ${ADMIN_EMAIL} --agree-tos --no-eff-email -d ${DOMAIN_NAME}
+
+volumes:
+  postgres_data:
+
+networks:
+  nfsys_network:
+    driver: bridge 

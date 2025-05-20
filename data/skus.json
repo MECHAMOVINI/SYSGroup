@@ -1,0 +1,38 @@
+[
+  {
+    "id": "sku1",
+    "codigo": "SKU001",
+    "descricao": "Refrigerante Cola 2L",
+    "familia": "Refrigerantes",
+    "unidade": "UN",
+    "valorUnitario": 5.5,
+    "fatorHL": 2
+  },
+  {
+    "id": "sku2",
+    "codigo": "SKU002",
+    "descricao": "Água Mineral 500ml",
+    "familia": "Águas",
+    "unidade": "UN",
+    "valorUnitario": 2,
+    "fatorHL": 0.5
+  },
+  {
+    "id": "sku3",
+    "codigo": "SKU003",
+    "descricao": "Cerveja Pilsen 600ml",
+    "familia": "Cervejas",
+    "unidade": "UN",
+    "valorUnitario": 7.5,
+    "fatorHL": 0.6
+  },
+  {
+    "id": "sku4",
+    "codigo": "SKU004",
+    "descricao": "Suco Natural 1L",
+    "familia": "Sucos",
+    "unidade": "UN",
+    "valorUnitario": 12,
+    "fatorHL": 1
+  }
+]

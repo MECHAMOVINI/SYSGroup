@@ -1,0 +1,74 @@
+[
+  {
+    "codigo": "904508PR",
+    "descricao": "Cerv Bavaria Lager 0,350Lt Desc 12Un",
+    "unidade": "FAR",
+    "fatorHl": 0.042,
+    "dataCadastro": "2025-05-19T16:26:21.240Z",
+    "familia": "Não classificado"
+  },
+  {
+    "codigo": "903482PR",
+    "descricao": "Cerv Heineken Pil 0,60Gfa Rt 24Un",
+    "unidade": "CX",
+    "fatorHl": 0.144,
+    "familia": "Não classificado",
+    "dataCadastro": "2025-05-18T13:17:39.549Z"
+  },
+  {
+    "codigo": "904701PR",
+    "descricao": "Cerv Sol Pil0,330gfa Desc Astro 4x6unpbr",
+    "unidade": "PAC",
+    "fatorHl": 0.0792,
+    "familia": "Não classificado",
+    "dataCadastro": "2025-05-18T13:42:01.490Z"
+  },
+  {
+    "codigo": "903797PR",
+    "descricao": "Refr Fys Tonica 0,350lt Des 12un Pbr",
+    "unidade": "FAR",
+    "fatorHl": 0.042,
+    "familia": "Não Alcoólicos",
+    "dataCadastro": "2025-05-18T13:42:17.904Z"
+  },
+  {
+    "codigo": "900525PR",
+    "descricao": "Refr Sch Itub 0,355Ln Des 2X6Un Pbr",
+    "unidade": "PAC",
+    "fatorHl": 0.0426,
+    "familia": "Não Alcoólicos",
+    "dataCadastro": "2025-05-18T13:42:45.852Z"
+  },
+  {
+    "codigo": "903318PR",
+    "descricao": "Refr Itub Orig 0,5Pet Des 12Un Pbr",
+    "unidade": "FAR",
+    "fatorHl": 0.06,
+    "familia": "Não Alcoólicos",
+    "dataCadastro": "2025-05-18T13:43:07.119Z"
+  },
+  {
+    "codigo": "904631PR",
+    "descricao": "Cerv Amstel Ultra 0,275ln Des 2x6un Pbr",
+    "unidade": "PAC",
+    "fatorHl": 0.033,
+    "familia": "Cerveja",
+    "dataCadastro": "2025-05-18T13:43:38.851Z"
+  },
+  {
+    "codigo": "903791PR",
+    "descricao": "Refr Fys Guarana 0,350lt Des 12un Pbr",
+    "unidade": "FAR",
+    "fatorHl": 0.042,
+    "familia": "Não Alcoólicos",
+    "dataCadastro": "2025-05-18T13:44:23.781Z"
+  },
+  {
+    "codigo": "904952PR",
+    "descricao": "Cerv Amstel Lager 0,350lt Sleek 12un Pbr",
+    "unidade": "FAR",
+    "fatorHl": 0.042,
+    "familia": "Cerveja",
+    "dataCadastro": "2025-05-20T01:19:15.451Z"
+  }
+]

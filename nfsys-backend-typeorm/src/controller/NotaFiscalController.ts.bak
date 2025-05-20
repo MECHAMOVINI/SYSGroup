@@ -1,0 +1,246 @@
+import { Request, Response, NextFunction } from "express";
+import { AppDataSource } from "../config/data-source";
+import { NotaFiscal } from "../entity/NotaFiscal";
+import { Empresa } from "../entity/Empresa";
+import { ProdutoNotaFiscal } from "../entity/ProdutoNotaFiscal";
+import { Produto } from "../entity/Produto";
+
+export class NotaFiscalController {
+  private notaFiscalRepository = AppDataSource.getRepository(NotaFiscal);
+  private empresaRepository = AppDataSource.getRepository(Empresa);
+  private produtoRepository = AppDataSource.getRepository(Produto);
+  private produtoNotaFiscalRepository = AppDataSource.getRepository(ProdutoNotaFiscal);
+
+  // Listar todas as notas fiscais de uma empresa
+  async listarTodas(req: Request, res: Response, next: NextFunction) {
+    try {
+      const empresaId = req.usuario?.id;
+      
+      if (!empresaId) {
+        return res.status(400).json({ message: "ID da empresa não fornecido" });
+      }
+
+      const notasFiscais = await this.notaFiscalRepository.find({
+        where: { empresa: { id: empresaId } },
+        relations: ["produtos", "produtos.produto"],
+        order: { dataEmissao: "DESC" }
+      });
+
+      return res.json(notasFiscais);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Buscar uma nota fiscal específica
+  async buscarPorId(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const empresaId = req.usuario?.id;
+      
+      if (!empresaId) {
+        return res.status(400).json({ message: "ID da empresa não fornecido" });
+      }
+
+      const notaFiscal = await this.notaFiscalRepository.findOne({
+        where: { 
+          id: id,
+          empresa: { id: empresaId } 
+        },
+        relations: ["produtos", "produtos.produto"]
+      });
+
+      if (!notaFiscal) {
+        return res.status(404).json({ message: "Nota fiscal não encontrada" });
+      }
+
+      return res.json(notaFiscal);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Criar uma nova nota fiscal
+  async criar(req: Request, res: Response, next: NextFunction) {
+    try {
+      const {
+        numeroNF,
+        serieNF,
+        dataEmissao,
+        valorTotal,
+        nomeEmitente,
+        transportadora,
+        produtos
+      } = req.body;
+
+      const empresaId = req.usuario?.id;
+      
+      if (!empresaId) {
+        return res.status(400).json({ message: "ID da empresa não fornecido" });
+      }
+
+      // Verificar se a empresa existe
+      const empresa = await this.empresaRepository.findOneBy({ id: empresaId });
+      
+      if (!empresa) {
+        return res.status(404).json({ message: "Empresa não encontrada" });
+      }
+
+      // Verificar se já existe uma NF com mesmo número e série para esta empresa
+      const notaFiscalExistente = await this.notaFiscalRepository.findOne({
+        where: {
+          numeroNF: numeroNF,
+          serieNF: serieNF,
+          empresa: { id: empresaId }
+        }
+      });
+
+      if (notaFiscalExistente) {
+        return res.status(400).json({ message: "Já existe uma nota fiscal com este número e série" });
+      }
+
+      // Criar a nota fiscal
+      const notaFiscal = new NotaFiscal();
+      notaFiscal.numeroNF = numeroNF;
+      notaFiscal.serieNF = serieNF;
+      notaFiscal.dataEmissao = new Date(dataEmissao);
+      notaFiscal.valorTotal = valorTotal;
+      notaFiscal.nomeEmitente = nomeEmitente;
+      notaFiscal.transportadora = transportadora;
+      notaFiscal.empresa = empresa;
+      notaFiscal.dataIntegracao = new Date();
+      
+      // Salvar a nota fiscal
+      const notaFiscalSalva = await this.notaFiscalRepository.save(notaFiscal);
+      
+      // Processar os produtos da nota fiscal
+      if (produtos && Array.isArray(produtos)) {
+        for (const produtoData of produtos) {
+          // Verificar se o produto existe ou criar um novo
+          let produto = await this.produtoRepository.findOneBy({ codigo: produtoData.codigo });
+          
+          if (!produto) {
+            produto = new Produto();
+            produto.codigo = produtoData.codigo;
+            produto.nome = produtoData.nome;
+            produto.familia = produtoData.familia || "Sem categoria";
+            produto.volume = produtoData.volume || "0";
+            produto.hlEquivalente = produtoData.hlEquivalente || 0;
+            await this.produtoRepository.save(produto);
+          }
+          
+          // Criar o relacionamento entre produto e nota fiscal
+          const produtoNF = new ProdutoNotaFiscal();
+          produtoNF.notaFiscal = notaFiscalSalva;
+          produtoNF.produto = produto;
+          produtoNF.quantidade = produtoData.quantidade;
+          produtoNF.valorUnitario = produtoData.valorUnitario;
+          produtoNF.valorTotal = produtoData.valorTotal;
+          
+          await this.produtoNotaFiscalRepository.save(produtoNF);
+        }
+      }
+      
+      // Buscar a nota fiscal completa para retornar
+      const notaFiscalCompleta = await this.notaFiscalRepository.findOne({
+        where: { id: notaFiscalSalva.id },
+        relations: ["produtos", "produtos.produto"]
+      });
+      
+      return res.status(201).json(notaFiscalCompleta);
+    } catch (error) {
+      console.error("Erro ao criar nota fiscal:", error);
+      next(error);
+    }
+  }
+
+  // Atualizar uma nota fiscal existente
+  async atualizar(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const empresaId = req.usuario?.id;
+      
+      if (!empresaId) {
+        return res.status(400).json({ message: "ID da empresa não fornecido" });
+      }
+
+      const notaFiscal = await this.notaFiscalRepository.findOne({
+        where: { 
+          id: id,
+          empresa: { id: empresaId } 
+        }
+      });
+
+      if (!notaFiscal) {
+        return res.status(404).json({ message: "Nota fiscal não encontrada" });
+      }
+
+      // Atualizar os campos da nota fiscal
+      const {
+        numeroNF,
+        serieNF,
+        dataEmissao,
+        valorTotal,
+        nomeEmitente,
+        transportadora
+      } = req.body;
+
+      // Atualizar apenas os campos fornecidos
+      if (numeroNF !== undefined) notaFiscal.numeroNF = numeroNF;
+      if (serieNF !== undefined) notaFiscal.serieNF = serieNF;
+      if (dataEmissao !== undefined) notaFiscal.dataEmissao = new Date(dataEmissao);
+      if (valorTotal !== undefined) notaFiscal.valorTotal = valorTotal;
+      if (nomeEmitente !== undefined) notaFiscal.nomeEmitente = nomeEmitente;
+      if (transportadora !== undefined) notaFiscal.transportadora = transportadora;
+
+      // Salvar as alterações
+      await this.notaFiscalRepository.save(notaFiscal);
+
+      // Buscar a nota fiscal atualizada
+      const notaFiscalAtualizada = await this.notaFiscalRepository.findOne({
+        where: { id: id },
+        relations: ["produtos", "produtos.produto"]
+      });
+
+      return res.json(notaFiscalAtualizada);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Excluir uma nota fiscal
+  async excluir(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const empresaId = req.usuario?.id;
+      
+      if (!empresaId) {
+        return res.status(400).json({ message: "ID da empresa não fornecido" });
+      }
+
+      const notaFiscal = await this.notaFiscalRepository.findOne({
+        where: { 
+          id: id,
+          empresa: { id: empresaId } 
+        },
+        relations: ["produtos"]
+      });
+
+      if (!notaFiscal) {
+        return res.status(404).json({ message: "Nota fiscal não encontrada" });
+      }
+
+      // Excluir os produtos da nota fiscal
+      if (notaFiscal.produtos && notaFiscal.produtos.length > 0) {
+        await this.produtoNotaFiscalRepository.remove(notaFiscal.produtos);
+      }
+
+      // Excluir a nota fiscal
+      await this.notaFiscalRepository.remove(notaFiscal);
+
+      return res.status(204).send();
+    } catch (error) {
+      next(error);
+    }
+  }
+} 
