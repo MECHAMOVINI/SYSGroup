@@ -22,6 +22,29 @@ app.use(cors({
 app.use(bodyParser.json({ limit: '50mb' })); // Aumentar o limite para arquivos grandes
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
+// Debug de caminhos para verificar onde o Express está procurando arquivos estáticos
+console.log('Diretório base:', __dirname);
+console.log('Caminho para arquivos estáticos:', path.join(__dirname, 'dist'));
+
+// Verificar se o diretório dist existe
+try {
+  const distExists = require('fs').existsSync(path.join(__dirname, 'dist'));
+  console.log('Diretório dist existe:', distExists);
+  
+  // Se o diretório não existir, tentar criá-lo
+  if (!distExists) {
+    console.log('Tentando criar diretório dist...');
+    require('fs').mkdirSync(path.join(__dirname, 'dist'), { recursive: true });
+    console.log('Diretório dist criado.');
+  }
+  
+  // Listar arquivos na pasta dist para debug
+  const files = require('fs').readdirSync(path.join(__dirname, 'dist'));
+  console.log('Arquivos na pasta dist:', files);
+} catch (err) {
+  console.error('Erro ao verificar ou criar diretório dist:', err);
+}
+
 // Middleware para upload de arquivos
 app.use(fileUpload({
   createParentPath: true,
@@ -29,7 +52,7 @@ app.use(fileUpload({
   abortOnLimit: true
 }));
 
-// Servir arquivos estáticos do frontend (build)
+// Middleware para servir arquivos estáticos - configuração melhorada
 app.use(express.static(path.join(__dirname, 'dist')));
 
 // Diretório para armazenar dados
@@ -603,7 +626,16 @@ app.post('/api/auth/login', async (req, res) => {
 
 // Rota para todas as outras requisições - necessário para o React Router
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  console.log(`Requisição recebida para rota: ${req.originalUrl}`);
+  // Verificar se o arquivo index.html existe antes de enviar
+  const indexPath = path.join(__dirname, 'dist', 'index.html');
+  if (require('fs').existsSync(indexPath)) {
+    console.log('Enviando index.html...');
+    res.sendFile(indexPath);
+  } else {
+    console.error('Arquivo index.html não encontrado em', indexPath);
+    res.status(500).send('Erro: Arquivo index.html não encontrado');
+  }
 });
 
 // Inicializar dados e iniciar o servidor

@@ -1,0 +1,12 @@
+{
+  "useLocalDockerfile": true,
+  "buildMode": "buildpack",
+  "buildpack": {
+    "builder": "heroku/buildpacks:20",
+    "settings": {
+      "NODE_ENV": "production"
+    }
+  },
+  "startCommand": "npm run api:prod",
+  "port": 3003
+} 
