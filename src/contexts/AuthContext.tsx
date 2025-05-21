@@ -2,7 +2,8 @@ import React, { createContext, useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
-const API_URL = 'http://localhost:3002/api'
+// Atualizando para usar nosso servidor atual
+const API_URL = '/api'
 
 interface UserAdmin {
   id: string
@@ -96,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true)
     try {
       console.log('Tentando login admin:', { email })
-      const response = await axios.post(`${API_URL}/auth/admin/login`, {
+      const response = await axios.post(`${API_URL}/auth/login`, {
         email,
         senha: senhaPlainText // O backend espera 'senha'
       })
@@ -138,9 +139,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInEmpresa = useCallback(async (emailCorporativoLogin: string, tokenAcesso: string) => {
     setIsLoading(true)
     try {
-      const response = await axios.post(`${API_URL}/auth/empresa/login`, { 
-        emailCorporativoLogin, 
-        tokenAcesso 
+      const response = await axios.post(`${API_URL}/auth/login`, { 
+        email: emailCorporativoLogin, 
+        senha: tokenAcesso 
       })
       handleSuccessfulLogin(response.data, 'empresa')
       navigate('/selecao-sistema') // Redirecionar para /selecao-sistema após login de empresa
