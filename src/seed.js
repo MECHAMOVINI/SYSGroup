@@ -2,117 +2,95 @@ import bcrypt from 'bcrypt';
 import { initializeDatabase } from './config/db.config.js';
 import { User } from './entities/User.js';
 import { Sku } from './entities/Sku.js';
+const fs = require('fs').promises;
+const path = require('path');
 
-async function seed() {
-  console.log('Iniciando script de seed...');
-  
+// Diretório para armazenar dados
+const DATA_DIR = path.join(__dirname, '..', 'data');
+
+// Garantir que o diretório de dados existe
+async function ensureDataDir() {
   try {
-    const dataSource = await initializeDatabase();
-    const userRepository = dataSource.getRepository(User);
-    const skuRepository = dataSource.getRepository(Sku);
-    
-    // Criar usuário admin (se não existir)
-    const adminExists = await userRepository.findOne({ where: { email: 'admin@example.com' } });
-    
-    if (!adminExists) {
-      console.log('Criando usuário administrador...');
-      const hashedPassword = await bcrypt.hash('admin123', 10);
-      
-      await userRepository.save({
-        nome: 'Administrador',
-        email: 'admin@example.com',
-        senha: hashedPassword,
-        cargo: 'Administrador',
-        ativo: true
-      });
-      
-      console.log('Usuário admin criado com sucesso!');
-    } else {
-      console.log('Usuário admin já existe, pulando...');
+    await fs.mkdir(DATA_DIR, { recursive: true });
+  } catch (err) {
+    console.error('Erro ao criar diretório de dados:', err);
+  }
+}
+
+// Carregar ou criar arquivo de dados
+async function getDataFile(fileName) {
+  const filePath = path.join(DATA_DIR, fileName);
+  try {
+    const data = await fs.readFile(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      // Se o arquivo não existir, retornar um array vazio
+      return [];
     }
+    console.error(`Erro ao ler ${fileName}:`, err);
+    throw err;
+  }
+}
+
+// Salvar dados em arquivo
+async function saveDataFile(fileName, data) {
+  const filePath = path.join(DATA_DIR, fileName);
+  try {
+    await fs.writeFile(filePath, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error(`Erro ao salvar ${fileName}:`, err);
+    throw err;
+  }
+}
+
+// Dados iniciais de usuários
+const usuariosIniciais = [
+  {
+    id: "user1",
+    nome: "Administrador",
+    email: "admin@example.com",
+    senha: bcrypt.hashSync("admin123", 10),
+    role: "admin",
+    dataCriacao: new Date().toISOString()
+  },
+  {
+    id: "user2",
+    nome: "Usuário",
+    email: "usuario@example.com",
+    senha: bcrypt.hashSync("usuario123", 10),
+    role: "operador",
+    dataCriacao: new Date().toISOString()
+  }
+];
+
+// Função para inicializar dados
+async function seedData() {
+  try {
+    await ensureDataDir();
     
-    // Criar usuário padrão (se não existir)
-    const userExists = await userRepository.findOne({ where: { email: 'usuario@example.com' } });
-    
-    if (!userExists) {
-      console.log('Criando usuário padrão...');
-      const hashedPassword = await bcrypt.hash('usuario123', 10);
-      
-      await userRepository.save({
-        nome: 'Usuário Padrão',
-        email: 'usuario@example.com',
-        senha: hashedPassword,
-        cargo: 'Operador',
-        ativo: true
-      });
-      
-      console.log('Usuário padrão criado com sucesso!');
+    // Verificar se o arquivo de usuários existe
+    const usuarios = await getDataFile('usuarios.json');
+    if (usuarios.length === 0) {
+      await saveDataFile('usuarios.json', usuariosIniciais);
+      console.log('Arquivo de usuários criado com dados iniciais.');
     } else {
-      console.log('Usuário padrão já existe, pulando...');
-    }
-    
-    // Criar SKUs padrão (se não existirem)
-    const skus = [
-      {
-        codigo: '7891149201309',
-        descricao: 'CERVEJA HEINEKEN LONG NECK 330ML',
-        unidade: 'UN',
-        fatorHl: 0.00333,
-        familia: 'Cerveja'
-      },
-      {
-        codigo: '7891991010856',
-        descricao: 'CERVEJA SKOL PILSEN LATA 350ML',
-        unidade: 'UN',
-        fatorHl: 0.0035,
-        familia: 'Cerveja'
-      },
-      {
-        codigo: '7891991011242',
-        descricao: 'CERVEJA BOHEMIA PILSEN LATA 350ML',
-        unidade: 'UN',
-        fatorHl: 0.0035,
-        familia: 'Cerveja'
-      },
-      {
-        codigo: '7894900010015',
-        descricao: 'REFRIGERANTE COCA-COLA LATA 350ML',
-        unidade: 'UN',
-        fatorHl: 0.0035,
-        familia: 'Refrigerante'
-      },
-      {
-        codigo: '7891991000147',
-        descricao: 'ÁGUA MINERAL CRYSTAL SEM GÁS 500ML',
-        unidade: 'UN',
-        fatorHl: 0.005,
-        familia: 'Água'
-      }
-    ];
-    
-    console.log('Criando SKUs padrão...');
-    
-    for (const skuData of skus) {
-      const skuExists = await skuRepository.findOne({ 
-        where: { codigo: skuData.codigo } 
-      });
+      console.log('Arquivo de usuários já existe.');
       
-      if (!skuExists) {
-        await skuRepository.save(skuData);
-        console.log(`SKU ${skuData.codigo} criado com sucesso!`);
-      } else {
-        console.log(`SKU ${skuData.codigo} já existe, pulando...`);
+      // Verificar se o usuário admin existe
+      const adminExists = usuarios.some(user => user.email === 'admin@example.com');
+      if (!adminExists) {
+        usuarios.push(usuariosIniciais[0]);
+        await saveDataFile('usuarios.json', usuarios);
+        console.log('Usuário admin adicionado.');
       }
     }
     
     console.log('Seed concluído com sucesso!');
-    process.exit(0);
-    
-  } catch (error) {
-    console.error('Erro durante o seed:', error);
-    process.exit(1);
+  } catch (err) {
+    console.error('Erro ao executar seed:', err);
   }
 }
 
-// Executar o seed
-seed(); 
+// Executar seed
+seedData(); 

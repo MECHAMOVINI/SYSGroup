@@ -7,6 +7,8 @@ const { v4: uuidv4 } = require('uuid');
 const multer = require('multer'); // Para uploads de arquivos
 const xml2js = require('xml2js'); // Para conversão de XML para JSON
 const fileUpload = require('express-fileupload'); // Alternativa mais simples para upload
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const PORT = 3003;
@@ -196,6 +198,26 @@ const skusIniciais = [
 // Dados iniciais de famílias
 const familiasIniciais = ["Refrigerantes", "Águas", "Cervejas", "Sucos"];
 
+// Dados iniciais de usuários
+const usuariosIniciais = [
+  {
+    id: "user1",
+    nome: "Administrador",
+    email: "admin@example.com",
+    senha: bcrypt.hashSync("admin123", 10),
+    role: "admin",
+    dataCriacao: new Date().toISOString()
+  },
+  {
+    id: "user2",
+    nome: "Usuário",
+    email: "usuario@example.com",
+    senha: bcrypt.hashSync("usuario123", 10),
+    role: "operador",
+    dataCriacao: new Date().toISOString()
+  }
+];
+
 // Inicializar arquivos de dados
 async function initializeData() {
   await ensureDataDir();
@@ -220,6 +242,13 @@ async function initializeData() {
     if (familias.length === 0) {
       await saveDataFile('familias.json', familiasIniciais);
       console.log('Arquivo de famílias criado com dados iniciais.');
+    }
+
+    // Verificar se o arquivo de usuários existe
+    const usuarios = await getDataFile('usuarios.json');
+    if (usuarios.length === 0) {
+      await saveDataFile('usuarios.json', usuariosIniciais);
+      console.log('Arquivo de usuários criado com dados iniciais.');
     }
     
   } catch (err) {
@@ -495,6 +524,48 @@ app.post('/api/parse-xml-text', async (req, res) => {
   } catch (err) {
     console.error('Erro ao processar XML:', err);
     res.status(500).json({ error: `Erro ao processar XML: ${err.message}` });
+  }
+});
+
+// Endpoint para autenticação
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, senha } = req.body;
+    
+    if (!email || !senha) {
+      return res.status(400).json({ error: 'Email e senha são obrigatórios' });
+    }
+    
+    const usuarios = await getDataFile('usuarios.json');
+    const usuario = usuarios.find(u => u.email === email);
+    
+    if (!usuario) {
+      return res.status(401).json({ error: 'Credenciais inválidas' });
+    }
+    
+    const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
+    
+    if (!senhaCorreta) {
+      return res.status(401).json({ error: 'Credenciais inválidas' });
+    }
+    
+    // Gerar token JWT
+    const token = jwt.sign(
+      { id: usuario.id, email: usuario.email, role: usuario.role },
+      process.env.JWT_SECRET || 'nfsys_jwt_secret_token_seguro_2024',
+      { expiresIn: process.env.JWT_EXPIRES_IN || '1d' }
+    );
+    
+    // Retornar token e dados do usuário (sem a senha)
+    const { senha: _, ...usuarioSemSenha } = usuario;
+    res.json({
+      token,
+      usuario: usuarioSemSenha
+    });
+    
+  } catch (err) {
+    console.error('Erro ao autenticar usuário:', err);
+    res.status(500).json({ error: 'Erro ao autenticar usuário' });
   }
 });
 
