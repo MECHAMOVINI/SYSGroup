@@ -12,8 +12,8 @@ RUN npm ci
 # Copiar código fonte
 COPY . .
 
-# Garantir que as dependências do servidor estão instaladas
-RUN npm install express cors body-parser express-fileupload xml2js bcrypt jsonwebtoken uuid
+# Garantir que as dependências específicas do servidor estão instaladas com versões corretas
+RUN npm uninstall express && npm install express@4.18.3 cors body-parser express-fileupload xml2js bcrypt jsonwebtoken uuid
 
 # Construir aplicação frontend - modificado para lidar com o erro de TypeScript
 RUN npm run build || (echo "Tentando build novamente com abordagem alternativa" && npx vite build)

@@ -451,7 +451,9 @@ export default function CadastroSKUs() {
         });
         
         // Adicionar rodapé com número de página
-        const pageCount = doc.internal.getNumberOfPages();
+        // Corrigir o erro TypeScript usando @ts-ignore e pegando os dados via any
+        // @ts-ignore
+        const pageCount = (doc.internal as any).getNumberOfPages();
         for (let i = 1; i <= pageCount; i++) {
           doc.setPage(i);
           doc.setFontSize(8);
