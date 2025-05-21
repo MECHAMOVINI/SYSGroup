@@ -15,6 +15,9 @@ COPY . .
 # Construir aplicação frontend - modificado para lidar com o erro de TypeScript
 RUN npm run build || (echo "Tentando build novamente com abordagem alternativa" && npx vite build)
 
+# Garantir que o diretório dist existe (para servir conteúdo estático)
+RUN mkdir -p dist
+
 # Expor porta
 EXPOSE 3003
 
