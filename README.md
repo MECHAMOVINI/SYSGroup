@@ -63,25 +63,61 @@ Após executar o seed, dois usuários estarão disponíveis:
 
 ## Ambiente de Produção
 
-Para implantar em produção:
+### Implantação na VPN Hostinger
 
-1. Configure as variáveis de ambiente:
+Para implantar em produção na VPN da Hostinger:
+
+1. Configure o servidor na Hostinger com Docker e Docker Compose instalados
+
+2. Clone este repositório no servidor da Hostinger
+
+3. Crie um arquivo `.env` com as seguintes variáveis:
    ```
-   DB_PASSWORD=suaSenhaSegura
-   JWT_SECRET=suaChaveSecretaJWT
-   CORS_ORIGIN=https://seudominio.com
-   DOMAIN_NAME=seudominio.com
+   # Configurações do Banco de Dados
+   DB_PASSWORD=sua_senha_segura
+
+   # Configurações JWT
+   JWT_SECRET=sua_chave_secreta_jwt
+   JWT_EXPIRES_IN=1d
+
+   # Configurações de Domínio
+   DOMAIN_NAME=seu-dominio-vpn.com
    ADMIN_EMAIL=seu@email.com
+   CORS_ORIGIN=https://seu-dominio-vpn.com
+   
+   # Outras configurações
+   NODE_ENV=production
+   PORT=3003
    ```
 
-2. Construa e inicie os containers:
+4. Execute o script de implantação:
+   
+   **Linux/Mac:**
    ```
-   docker-compose up -d
+   chmod +x deploy.sh
+   ./deploy.sh
+   ```
+   
+   **Windows:**
+   ```
+   bash deploy.sh
+   ```
+   (Certifique-se de ter o Git Bash ou WSL instalado no Windows)
+
+5. Verifique os logs para assegurar que tudo está funcionando corretamente:
+   ```
+   docker-compose logs -f
    ```
 
 O sistema estará disponível em:
-- https://seudominio.com (frontend)
-- https://seudominio.com/api (API)
+- https://seu-dominio-vpn.com (frontend)
+- https://seu-dominio-vpn.com/api (API)
+
+### Resolução de problemas comuns na VPN
+
+- **Problemas de DNS**: Verifique se o nome de domínio está corretamente configurado na rede VPN
+- **Certificados SSL**: Caso a geração automática de certificados falhe, você pode usar o comando `docker-compose exec certbot` para tentar novamente
+- **Conectividade**: Certifique-se que as portas 80 e 443 estão liberadas no firewall da VPN
 
 ## Estrutura do Projeto
 
