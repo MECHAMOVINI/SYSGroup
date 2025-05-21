@@ -18,8 +18,8 @@ import {
 } from '@chakra-ui/react';
 import { FiUpload, FiFile } from 'react-icons/fi';
 
-// URL da nova API separada
-const API_URL = 'http://localhost:3003/api';
+// Atualizando para usar caminho relativo da API
+const API_URL = '/api';
 
 const NFeUploader = ({ onProcessedData }) => {
   const [xmlFile, setXmlFile] = useState(null);

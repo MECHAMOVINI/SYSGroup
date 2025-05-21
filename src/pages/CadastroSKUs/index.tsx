@@ -54,6 +54,8 @@ import { useForm } from 'react-hook-form'
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
+const API_URL = '/api';
+
 type SKU = {
   codigo: string;
   descricao: string;
@@ -90,7 +92,7 @@ export default function CadastroSKUs() {
     const fetchSKUs = async () => {
       setLoading(true);
       try {
-        const response = await fetch('http://localhost:3003/api/skus');
+        const response = await fetch(`${API_URL}/skus`);
         if (response.ok) {
           const data = await response.json();
           setSKUs(data);
@@ -125,7 +127,7 @@ export default function CadastroSKUs() {
     const fetchFamilias = async () => {
       setLoadingFamilias(true);
       try {
-        const response = await fetch('http://localhost:3003/api/familias');
+        const response = await fetch(`${API_URL}/familias`);
         if (response.ok) {
           const data = await response.json();
           setFamilias(data);
@@ -172,7 +174,7 @@ export default function CadastroSKUs() {
         fatorHl: fatorHlNum
       };
       
-      const response = await fetch('http://localhost:3003/api/skus', {
+      const response = await fetch(`${API_URL}/skus`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

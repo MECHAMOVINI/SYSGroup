@@ -74,8 +74,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../hooks/useAuth';
 
-// Atualizando a URL da API para a porta 3002
-const API_URL = 'http://localhost:3002/api';
+// Atualizando a URL da API para usar caminho relativo (corrigindo o problema de autenticação em produção)
+const API_URL = '/api';
 
 // Helper function to format CNPJ for display - MOVED HERE
 const formatCnpjForDisplay = (value: string) => {

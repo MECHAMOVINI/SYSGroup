@@ -102,6 +102,9 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import NotaFiscalViewer from '../../components/NotaFiscalViewer'
 
+// No início do arquivo, adicione uma constante para a URL da API
+const API_URL = '/api';
+
 // Tipo para os dados da NF, para clareza
 interface NfDetalhe {
   id: string;
@@ -185,7 +188,7 @@ export default function Dashboard() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch('http://localhost:3003/api/notas-fiscais');
+        const response = await fetch(`${API_URL}/notas-fiscais`);
         if (!response.ok) {
           throw new Error(`Erro ao buscar notas fiscais: ${response.status}`);
         }
@@ -609,7 +612,7 @@ export default function Dashboard() {
   const deleteInvoice = async (id: string) => {
     setIsDeleting(true);
     try {
-      const response = await fetch(`http://localhost:3003/api/notas-fiscais/${id}`, {
+      const response = await fetch(`${API_URL}/notas-fiscais/${id}`, {
         method: 'DELETE',
       });
 

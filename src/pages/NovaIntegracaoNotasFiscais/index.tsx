@@ -45,6 +45,9 @@ import { FiArrowLeft, FiCheckCircle, FiAlertCircle, FiPlusCircle } from 'react-i
 import NFeUploader from '../../components/NFeUploader';
 import NotaFiscalViewer from '../../components/NotaFiscalViewer';
 
+// No início do arquivo, adicione uma constante para a URL da API
+const API_URL = '/api';
+
 interface ProdutoNF {
   codigo: string;
   descricao: string;
@@ -118,7 +121,7 @@ const NovaIntegracaoNotasFiscais: React.FC = () => {
     const atualizarCacheSKUs = async () => {
       try {
         console.log("Atualizando cache de SKUs em segundo plano...");
-        const response = await fetch('http://localhost:3003/api/skus');
+        const response = await fetch(`${API_URL}/skus`);
         if (response.ok) {
           const data = await response.json();
           localStorage.setItem('skus_cache', JSON.stringify(data));
@@ -139,7 +142,7 @@ const NovaIntegracaoNotasFiscais: React.FC = () => {
     const carregarFamilias = async () => {
       setCarregandoFamilias(true);
       try {
-        const response = await fetch('http://localhost:3003/api/familias');
+        const response = await fetch(`${API_URL}/familias`);
         if (response.ok) {
           const data = await response.json();
           setFamilias(data);
@@ -164,7 +167,7 @@ const NovaIntegracaoNotasFiscais: React.FC = () => {
     // SOLUÇÃO: Buscar todos os SKUs do backend para obter os fatores de HL corretos
     try {
       // Primeiro reconhecemos quais produtos estão cadastrados
-      const skusResponse = await fetch('http://localhost:3003/api/skus');
+      const skusResponse = await fetch(`${API_URL}/skus`);
       let skusCadastrados: any[] = [];
       
       if (skusResponse.ok) {
@@ -268,7 +271,7 @@ const NovaIntegracaoNotasFiscais: React.FC = () => {
       // Extrair apenas os dígitos numéricos do código
       const apenasNumeros = codigo.replace(/\D/g, '');
       
-      const skusResponse = await fetch('http://localhost:3003/api/skus');
+      const skusResponse = await fetch(`${API_URL}/skus`);
       if (skusResponse.ok) {
         const skusData = await skusResponse.json();
         
@@ -337,7 +340,7 @@ const NovaIntegracaoNotasFiscais: React.FC = () => {
       console.log("Enviando produto para cadastro:", produtoData);
       
       // Chamada real para o backend
-      const response = await fetch('http://localhost:3003/api/skus', {
+      const response = await fetch(`${API_URL}/skus`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -450,7 +453,7 @@ const NovaIntegracaoNotasFiscais: React.FC = () => {
     try {
       // Corrigido para usar a porta correta e incluir cabeçalhos apropriados
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3003/api/notas-fiscais', {
+      const response = await fetch(`${API_URL}/notas-fiscais`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
