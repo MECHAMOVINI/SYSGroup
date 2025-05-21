@@ -14,7 +14,11 @@ const app = express();
 const PORT = 3003;
 
 // Configuração do middleware
-app.use(cors());
+app.use(cors({
+  origin: '*',  // Permitir qualquer origem
+  methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(bodyParser.json({ limit: '50mb' })); // Aumentar o limite para arquivos grandes
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
@@ -530,24 +534,39 @@ app.post('/api/parse-xml-text', async (req, res) => {
 // Endpoint para autenticação
 app.post('/api/auth/login', async (req, res) => {
   try {
+    console.log('Tentativa de login recebida:', { 
+      email: req.body.email,
+      // Não logar a senha por motivos de segurança
+      temSenha: !!req.body.senha
+    });
+    
     const { email, senha } = req.body;
     
     if (!email || !senha) {
+      console.log('Erro: Email ou senha não fornecidos');
       return res.status(400).json({ error: 'Email e senha são obrigatórios' });
     }
     
     const usuarios = await getDataFile('usuarios.json');
+    console.log(`Buscando usuário com email: ${email}`);
+    
     const usuario = usuarios.find(u => u.email === email);
     
     if (!usuario) {
+      console.log(`Usuário não encontrado com email: ${email}`);
       return res.status(401).json({ error: 'Credenciais inválidas' });
     }
+    
+    console.log(`Usuário encontrado: ${usuario.nome || usuario.email}, verificando senha...`);
     
     const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
     
     if (!senhaCorreta) {
+      console.log('Senha incorreta fornecida');
       return res.status(401).json({ error: 'Credenciais inválidas' });
     }
+    
+    console.log('Autenticação bem-sucedida, gerando token...');
     
     // Gerar token JWT
     const token = jwt.sign(
@@ -558,10 +577,23 @@ app.post('/api/auth/login', async (req, res) => {
     
     // Retornar token e dados do usuário (sem a senha)
     const { senha: _, ...usuarioSemSenha } = usuario;
-    res.json({
+    
+    // Montar resposta final
+    const respostaFinal = {
       token,
-      usuario: usuarioSemSenha
+      user: usuarioSemSenha
+    };
+    
+    console.log('Resposta de login preparada:', {
+      token: token.substring(0, 15) + '...',
+      user: {
+        id: usuarioSemSenha.id,
+        email: usuarioSemSenha.email,
+        role: usuarioSemSenha.role
+      }
     });
+    
+    res.json(respostaFinal);
     
   } catch (err) {
     console.error('Erro ao autenticar usuário:', err);

@@ -109,6 +109,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error('Resposta do servidor inválida: token não encontrado')
       }
       
+      // Verificar formato dos dados do usuário
+      if (!response.data.user && response.data.usuario) {
+        console.log('Convertendo formato de resposta: usuario -> user')
+        response.data.user = response.data.usuario
+      }
+      
       handleSuccessfulLogin(response.data, 'admin')
       navigate('/admin') // Redirecionar para /admin após login bem-sucedido
     } catch (error) {
@@ -143,6 +149,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: emailCorporativoLogin, 
         senha: tokenAcesso 
       })
+      
+      console.log('Resposta do login empresa:', response.data)
+      
+      // Verificar formato dos dados do usuário
+      if (!response.data.empresa && response.data.user) {
+        console.log('Convertendo formato de resposta: user -> empresa')
+        response.data.empresa = response.data.user
+      }
+      
       handleSuccessfulLogin(response.data, 'empresa')
       navigate('/selecao-sistema') // Redirecionar para /selecao-sistema após login de empresa
     } catch (error) {

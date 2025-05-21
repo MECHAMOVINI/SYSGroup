@@ -19,6 +19,19 @@ sed -i "s/\$DOMAIN_NAME/$DOMAIN_NAME/g" nginx/conf/default.conf
 # Criar diretórios necessários se não existirem
 mkdir -p nginx/certbot/conf
 mkdir -p nginx/certbot/www
+mkdir -p data
+
+# Garantir que os arquivos iniciais de dados existam
+echo "Criando diretório de dados se necessário..."
+if [ ! -d "data" ]; then
+  echo "Criando diretório de dados..."
+  mkdir -p data
+  echo "[]" > data/usuarios.json
+  echo "[]" > data/notas-fiscais.json
+  echo "[]" > data/skus.json
+  echo "[]" > data/familias.json
+  echo "Arquivos de dados iniciais criados."
+fi
 
 echo "Iniciando os containers Docker..."
 docker-compose up -d
