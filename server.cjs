@@ -23,6 +23,9 @@ app.use(fileUpload({
   abortOnLimit: true
 }));
 
+// Servir arquivos estáticos do frontend (build)
+app.use(express.static(path.join(__dirname, 'dist')));
+
 // Diretório para armazenar dados
 const DATA_DIR = path.join(__dirname, 'data');
 
@@ -493,6 +496,11 @@ app.post('/api/parse-xml-text', async (req, res) => {
     console.error('Erro ao processar XML:', err);
     res.status(500).json({ error: `Erro ao processar XML: ${err.message}` });
   }
+});
+
+// Rota para todas as outras requisições - necessário para o React Router
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 // Inicializar dados e iniciar o servidor
